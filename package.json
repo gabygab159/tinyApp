@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/gabygab159/tinyApp/issues"
   },
-  "homepage": "https://github.com/gabygab159/tinyApp#readme"
+  "homepage": "https://github.com/gabygab159/tinyApp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
