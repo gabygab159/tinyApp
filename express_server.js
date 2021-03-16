@@ -3,6 +3,8 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({extended: true}));
+const cookieParser = require('cookie-parser')
+
 
 
 app.set("view engine", "ejs");
@@ -10,7 +12,6 @@ app.set("view engine", "ejs");
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
-  
    
 };
 
@@ -28,7 +29,9 @@ app.get('/hello', (req, res) => {
 })
 
 app.get('/urls', (req, res) => {
-  const templateVars = {urls:urlDatabase};
+  const templateVars = {
+    urls:urlDatabase
+  };
   res.render('urls_index', templateVars)
 })
 
@@ -57,7 +60,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 ////// Edit a url
 app.post("/urls/:shortURL", (req, res) => {
-  // urlDatabase[req.params.shortURL]
+  
   console.log(req.body)
   let longURL = req.body.longURL
   let shortURL = req.params.shortURL
@@ -66,6 +69,17 @@ app.post("/urls/:shortURL", (req, res) => {
   // console.log(res)
 
 })
+
+///////// User login
+app.post("/login", (req, res) => {
+let username = req.body.username;
+//console.log(typeof username)
+res.cookie("name", username)
+res.redirect('/urls')
+})
+
+/////
+
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]
   res.redirect(longURL);
