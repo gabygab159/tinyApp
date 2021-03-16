@@ -10,6 +10,8 @@ app.set("view engine", "ejs");
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
+  
+   
 };
 
 app.get('/', (req, res) => {
@@ -35,19 +37,30 @@ app.get('/urls/new', (req, res) => {
 })
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: req.params.longURL };
+  const templateVars = { shortURL: urlDatabase[req.params], longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars)
 })
 
 app.post('/urls', (req, res) => {
   console.log(req.body);
-  res.send('OK');
+  const newUrl = generateRandomString();
+  urlDatabase[newUrl] = req.body.longURL
+  res.redirect(`/urls/${newUrl}`);
+})
+
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL]
+  res.redirect(longURL);
 })
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
 })
 
+
+
+//// I needed to use this as a reference for random genereation
+//https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
 
 function generateRandomString() {
 
