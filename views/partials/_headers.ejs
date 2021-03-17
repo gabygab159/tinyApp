@@ -10,5 +10,14 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
+    <div>Hello :</div>
+    <% if(username.length){ %>
+      <form method="POST" action="/logout"><input type="submit"  value="Logout"/></form>
+      <%= username %>
+      <% } else{ %>  
+        <form method="POST" action="/login"><input type="text" name ="username" placeholder="name"><input type="submit"  value="Login" /></form>      
+        <% } %>
+
+  <!-- use if statement to check is username is present, if yes display logout -->
   </nav>
 </header>
