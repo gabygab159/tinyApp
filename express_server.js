@@ -16,6 +16,19 @@ const urlDatabase = {
    
 };
 
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
 app.get('/', (req, res) => {
   res.send("Hello!");
 })
@@ -57,7 +70,7 @@ app.get("/urls/:shortURL", (req, res) => {
   //// display register page
   app.get("/register", (req, res) => {
     const templateVars = {username: req.cookies["username"]}
-    console.log(res);
+    
     res.render("urls_register", templateVars)
   })
   
@@ -104,8 +117,24 @@ app.post("/logout", (req, res) => {
 
 ////// User registration
 app.post("/register", (req, res) => {
+//needs to add new user to DB
+// generate random ID with same function as random url
+//set cookie with new ID
+//redirect to /urls page
 
+const email = req.body.email
+const password = req.body.password
+const id = generateRandomString()
+
+let newUser = {id, email, password}
+users[id] = newUser
+
+console.log(users)
+
+res.cookie("user_id", id)
+res.redirect('/urls')
 })
+
 
 /////
 
@@ -128,14 +157,9 @@ app.listen(PORT, () => {
 function generateRandomString() {
 
   let alphaNum = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
   let randomString = '';
-
-  for (let i = 0; i < 6; i++) {
-    
-    randomString += alphaNum.charAt(Math.floor(Math.random() * alphaNum.length));
-    
-  }
-  
+  for (let i = 0; i < 6; i++) {    
+    randomString += alphaNum.charAt(Math.floor(Math.random() * alphaNum.length));       
+  }  
   return randomString;
 }
