@@ -51,9 +51,16 @@ app.get("/urls/:shortURL", (req, res) => {
     shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL], 
     username: req.cookies && req.cookies["username"] ? req.cookies["username"] : '', };
-  res.render("urls_show", templateVars)
-})
-
+    res.render("urls_show", templateVars)
+  })
+  
+  //// display register page
+  app.get("/register", (req, res) => {
+    const templateVars = {username: req.cookies["username"]}
+    console.log(res);
+    res.render("urls_register", templateVars)
+  })
+  
 app.post('/urls', (req, res) => {
   console.log(req.body);
   const newUrl = generateRandomString();
@@ -95,6 +102,10 @@ app.post("/logout", (req, res) => {
   res.redirect('/urls')
 })
 
+////// User registration
+app.post("/register", (req, res) => {
+
+})
 
 /////
 
