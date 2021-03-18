@@ -8,18 +8,18 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <div><a class="nav-item nav-link" href="/login">Login</a></div>
-        <div><a class="nav-item nav-link" href="/register">Register</a></div>
         <% if(!users[id]) { %>
+          <div><a class="nav-item nav-link" href="/login">Login</a></div>
+          <div><a class="nav-item nav-link" href="/register">Register</a></div>
           <% } %>
         </div>
       </div>
       <!-- use if statement to check is username is present, if yes display logout -->
-      <% if(users[id]){ %>
+      <% if(users[id] ){ %>
         <li>You're logged in as: </li>
         <%= users[id].email %>
         <form method="POST" action="/logout"><input type="submit"  value="Logout"/></form>
         <% } %>
         
-      </nav>
+  </nav>
 </header>
