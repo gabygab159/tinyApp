@@ -10,10 +10,11 @@ app.use(cookieParser())
 
 app.set("view engine", "ejs");
 
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
-   
+  
 };
 
 const users = { 
@@ -43,18 +44,20 @@ app.get('/hello', (req, res) => {
 })
 
 app.get('/urls', (req, res) => {
-  
+  let hold = req.cookies.user_id;
   const templateVars = {
     urls:urlDatabase, 
-    username: req.cookies && req.cookies["username"] ? req.cookies["username"] : '',
+    users: users,
+    id: req.cookies.user_id,        
   };
-  console.log(req.cookies)
+    console.log(req.cookies.user_id)
   res.render('urls_index', templateVars)
 })
 
 app.get('/urls/new', (req, res) => {
   const templateVars = {
-    username: req.cookies && req.cookies["username"] ? req.cookies["username"] : '',
+    users: users,
+    id: res.cookie.user_id
   }
   res.render('urls_new', templateVars)
 })
@@ -63,16 +66,34 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { 
     shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL], 
-    username: req.cookies && req.cookies["username"] ? req.cookies["username"] : '', };
+    users:users,
+    id: res.cookie.user_id
+   };
     res.render("urls_show", templateVars)
   })
   
   //// display register page
   app.get("/register", (req, res) => {
-    const templateVars = {username: req.cookies["username"]}
+    const templateVars = {
+      id: res.cookie.user_id,
+      users: users,
+    }
     
     res.render("urls_register", templateVars)
   })
+
+
+  //// diplay login page
+  app.get("/login", (req, res) => {
+
+      const templateVars = {
+      id: res.cookie.user_id,
+      users: users,
+    }
+
+    res.render("urls_login", templateVars)
+  })
+
   
 app.post('/urls', (req, res) => {
   console.log(req.body);
@@ -91,7 +112,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 ////// Edit a url
 app.post("/urls/:shortURL", (req, res) => {
   
-  console.log(req.body)
+  //console.log(req.body)
   let longURL = req.body.longURL
   let shortURL = req.params.shortURL
   urlDatabase[shortURL] = longURL
@@ -102,37 +123,63 @@ app.post("/urls/:shortURL", (req, res) => {
 
 ///////// User login
 app.post("/login", (req, res) => {
-  let username = req.body.username;
-  console.log(username)
-  res.cookie("username", username)
+  
+  const email = req.body.email
+  const password = req.body.password  
+
+  const user = findUser(email)
+
+  if(!user){
+    res.status(403).send("That user was not found")
+    return
+  }
+  
+  let correctPassword = authenticateUser(email,password)
+
+  if(!correctPassword) {
+    res.status(403).send("Wrong password")
+    return
+  }
+  const id = generateRandomString()
+  res.cookie("user_id", id)
   res.redirect('/urls')
 })
 
 /////// User logout
 app.post("/logout", (req, res) => {
   ///use clearCookie
-  res.clearCookie("username")
+  
+  res.clearCookie("user_id")
   res.redirect('/urls')
 })
 
 ////// User registration
 app.post("/register", (req, res) => {
-//needs to add new user to DB
-// generate random ID with same function as random url
-//set cookie with new ID
-//redirect to /urls page
+  //needs to add new user to DB
+  // generate random ID with same function as random url
+  //set cookie with new ID
+  //redirect to /urls page
+  
+  const email = req.body.email
+  const password = req.body.password
+  ////check if email already used
 
-const email = req.body.email
-const password = req.body.password
-const id = generateRandomString()
+  const user = findUser(email)
+  if(email === "" || password === "") {
+    res.status(400).send('Please make sure you have entered your information correctly')
+    return
+  }
 
-let newUser = {id, email, password}
-users[id] = newUser
+  if(user) {
+    res.status(400).send("User already in database")
+    return
+  } 
+  const id = generateRandomString()
+  let newUser = {id, email, password}
+  users[id] = newUser
 
-console.log(users)
-
-res.cookie("user_id", id)
-res.redirect('/urls')
+  res.cookie("user_id", id)
+  res.redirect('/urls')
 })
 
 
@@ -163,3 +210,31 @@ function generateRandomString() {
   }  
   return randomString;
 }
+
+////// Function to check if email already in DB
+
+const findUser = function(email) {  
+  for (let userId in users) {
+
+    const userObj = users[userId];
+
+    if(userObj.email === email) {
+     
+      return userObj
+    }
+    // console.log("userOBJ-->",userObj)
+  }
+}
+
+//////// function to check if password is good
+const authenticateUser = (email, password) => {
+
+  const userFound = findUser(email);
+
+  if (userFound && userFound.password === password) {
+    
+    return userFound;
+  }
+
+  return false;
+};
