@@ -12,9 +12,8 @@ app.set("view engine", "ejs");
 
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-  
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
 
 const users = { 
@@ -44,31 +43,51 @@ app.get('/hello', (req, res) => {
 })
 
 app.get('/urls', (req, res) => {
-  let hold = req.cookies.user_id;
+  let userID = req.cookies.user_id;
+  const userURLs = urlsForUser(userID)
+  
   const templateVars = {
-    urls:urlDatabase, 
+    urls: userURLs, 
     users: users,
-    id: req.cookies.user_id,        
+    id: userID        
   };
-    console.log(req.cookies.user_id)
+
+  
+    // console.log(req.cookies.user_id)
   res.render('urls_index', templateVars)
 })
+
+//////////////////////////////////////////////////////////////////////This is where there is confusion
 
 app.get('/urls/new', (req, res) => {
   const templateVars = {
     users: users,
     id: res.cookie.user_id
   }
+
+   user = req.cookies.user_id
+  // console.log(user === undefined)
+  // console.log("req", req.cookies.user_id)
+  if (!user) {
+    res.redirect('/login');
+    return    
+  }        
+  
   res.render('urls_new', templateVars)
 })
 
 app.get("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const longURL = urlDatabase[`${shortURL}`].longURL;
+  
   const templateVars = { 
     shortURL: req.params.shortURL, 
-    longURL: urlDatabase[req.params.shortURL], 
+    longURL,
     users:users,
-    id: res.cookie.user_id
+    id: res.cookie.user_id,   
+    
    };
+
     res.render("urls_show", templateVars)
   })
   
@@ -90,32 +109,39 @@ app.get("/urls/:shortURL", (req, res) => {
       id: res.cookie.user_id,
       users: users,
     }
-
     res.render("urls_login", templateVars)
-  })
+  });
 
   
+/////Add a url
+  
 app.post('/urls', (req, res) => {
-  console.log(req.body);
   const newUrl = generateRandomString();
-  urlDatabase[newUrl] = req.body.longURL
+  urlDatabase[newUrl] = {longURL:req.body.longURL, userID: req.cookies['user_id']}
   res.redirect(`/urls/${newUrl}`);
+  // console.log(urlDatabase);
 })
 
 /////// Delete a url
 app.post('/urls/:shortURL/delete', (req, res) => {
-    
-  delete urlDatabase[req.params.shortURL]
+  user = req.cookies.user_id 
+  // console.log(user)
+
+  if(user) {
+    delete urlDatabase[req.params.shortURL]
+    }
   res.redirect('/urls')
 })
 
 ////// Edit a url
 app.post("/urls/:shortURL", (req, res) => {
-  
+  user = req.cookies.user_id 
   //console.log(req.body)
+  if(user) {
   let longURL = req.body.longURL
   let shortURL = req.params.shortURL
   urlDatabase[shortURL] = longURL
+  }
   res.redirect('/urls')
   // console.log(res)
 
@@ -140,8 +166,9 @@ app.post("/login", (req, res) => {
     res.status(403).send("Wrong password")
     return
   }
-  const id = generateRandomString()
-  res.cookie("user_id", id)
+  console.log("user -->", user)
+  // const id = generateRandomString()
+  res.cookie("user_id", user.id)
   res.redirect('/urls')
 })
 
@@ -238,3 +265,22 @@ const authenticateUser = (email, password) => {
 
   return false;
 };
+
+
+///////////// Function to return urls based on id
+
+const urlsForUser = (userID) => {
+  ///go through database (loop) 
+    const urlObject = {}
+  
+    for (let id in urlDatabase) {
+      // console.log(urlDatabase[id])
+    let urlInfo = urlDatabase[id]
+  
+    if (urlInfo.userID === userID) {
+      urlObject[id] = urlInfo
+      }
+    }
+    return urlObject
+  }
+
