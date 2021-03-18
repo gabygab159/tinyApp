@@ -5,6 +5,9 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({extended: true}));
 const cookieParser = require('cookie-parser')
 app.use(cookieParser())
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+
 
 
 
@@ -38,6 +41,10 @@ app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
 })
 
+app.get('/urls.json', (req, res) => {
+  res.json(users);
+})
+
 app.get('/hello', (req, res) => {
   res.send("<html><body>Hello <b> World</b></body></html>\n");
 })
@@ -51,13 +58,12 @@ app.get('/urls', (req, res) => {
     users: users,
     id: userID        
   };
-
   
     // console.log(req.cookies.user_id)
   res.render('urls_index', templateVars)
 })
 
-//////////////////////////////////////////////////////////////////////This is where there is confusion
+
 
 app.get('/urls/new', (req, res) => {
   const templateVars = {
@@ -162,12 +168,13 @@ app.post("/login", (req, res) => {
   
   let correctPassword = authenticateUser(email,password)
 
+  console.log(password)
   if(!correctPassword) {
     res.status(403).send("Wrong password")
     return
   }
+
   console.log("user -->", user)
-  // const id = generateRandomString()
   res.cookie("user_id", user.id)
   res.redirect('/urls')
 })
@@ -189,7 +196,10 @@ app.post("/register", (req, res) => {
   
   const email = req.body.email
   const password = req.body.password
+  const hashedPassword = bcrypt.hashSync(password, saltRounds)
+
   ////check if email already used
+
 
   const user = findUser(email)
   if(email === "" || password === "") {
@@ -202,9 +212,11 @@ app.post("/register", (req, res) => {
     return
   } 
   const id = generateRandomString()
-  let newUser = {id, email, password}
-  users[id] = newUser
 
+  let newUser = {id, email, hashedPassword}
+
+  users[id] = newUser
+  console.log(newUser)
   res.cookie("user_id", id)
   res.redirect('/urls')
 })
@@ -258,7 +270,7 @@ const authenticateUser = (email, password) => {
 
   const userFound = findUser(email);
 
-  if (userFound && userFound.password === password) {
+  if (userFound && bcrypt.compareSync(password, userFound.hashedPassword)) {
     
     return userFound;
   }
