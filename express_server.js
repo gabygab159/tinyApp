@@ -174,6 +174,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   if (user) {
 
     delete urlDatabase[req.params.shortURL];
+
   }
   res.redirect('/urls');
 
@@ -182,12 +183,11 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 ////// Edit a url
 app.post("/urls/:shortURL", (req, res) => {
   user = req.session["user_id"];
-  //console.log(req.body)
+  
   if (user) {
     let longURL = req.body.longURL;
     let shortURL = req.params.shortURL;
-    urlDatabase[shortURL].longURL = longURL;
-   
+    urlDatabase[shortURL].longURL = longURL;   
   }
 
   res.redirect('/urls');  
@@ -209,8 +209,7 @@ app.post("/login", (req, res) => {
   }
   
   let correctPassword = authenticateUser(email,password);
-
-  console.log(password);
+  
   if (!correctPassword) {
     res.status(403).send("Wrong password");
     return;
@@ -260,8 +259,7 @@ app.post("/register", (req, res) => {
 
   let newUser = {id, email, hashedPassword};
 
-  users[id] = newUser;
-  console.log(users);
+  users[id] = newUser;  
   req.session["user_id"] = id;
   res.redirect('/urls');
 });
