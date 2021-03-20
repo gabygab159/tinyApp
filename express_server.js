@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const cookieSession = require('cookie-session');
 
-const { getUserByEmail } = require('./helpers');
+const { getUserByEmail, generateRandomString, authenticateUser, urlsForUser } = require('./helpers');
 
 app.use(
   cookieSession({
@@ -279,48 +279,4 @@ app.listen(PORT, () => {
 });
 
 
-
-//// I needed to use this as a reference for random genereation
-//https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
-
-function generateRandomString() {
-
-  let alphaNum = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let randomString = '';
-  for (let i = 0; i < 6; i++) {
-    randomString += alphaNum.charAt(Math.floor(Math.random() * alphaNum.length));
-  }
-  return randomString;
-}
-
-//////// function to check if password is good
-const authenticateUser = (email, password) => {
-
-  const userFound = getUserByEmail(email, users);
-
-  if (userFound && bcrypt.compareSync(password, userFound.hashedPassword)) {
-    
-    return userFound;
-  }
-
-  return false;
-};
-
-
-///////////// Function to return urls based on id
-
-const urlsForUser = (userID) => {
- 
-  const urlObject = {};
-  
-  for (let id in urlDatabase) {
-    
-    let urlInfo = urlDatabase[id];
-  
-    if (urlInfo.userID === userID) {
-      urlObject[id] = urlInfo;
-    }
-  }
-  return urlObject;
-};
 
