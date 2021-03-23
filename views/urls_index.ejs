@@ -25,12 +25,12 @@
         <% for(let url in urls) { %>
           <tr>
             <td><%= url %></td>
-            <td><%= urls[url].longURL %></td>
+            <td><%= urls[url] %></td>
             <td><a href= "/urls/<%= url %>" class="btn btn-outline-primary">Edit</a></td> 
            <td><form method="POST" action="/urls/<%= url %>/delete" ><input type="submit" value="Delete" <button type="button" class="btn btn-outline-danger"></button></form></td>
           </tr>
-          <% } %>
-        </tbody>        
+        <% } %>
+      </tbody>        
     </table>    
   </main>
   <!-- Bootstrap JS -->
