@@ -1,8 +1,3 @@
-const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
-};
-
 const users = {
   "userRandomID": {
     id: "userRandomID",
@@ -40,20 +35,22 @@ const getUserByEmail = function(email, database) {
 
 ///////////// Function to return urls based on id
 
-const urlsForUser = (userID) => {
+const urlsForUser = (userID, database) => {
  
-  const urlObject = {};
+  let urlObject = {};
   
-  for (let id in urlDatabase) {
+  for (let shortUrl in database) {
+   
+    let urlInfo = database[shortUrl];
     
-    let urlInfo = urlDatabase[id];
-  
     if (urlInfo.userID === userID) {
-      urlObject[id] = urlInfo;
+    urlObject[shortUrl] = urlInfo.longURL;
     }
   }
+  
   return urlObject;
 };
+
 
 //////// function to check if password is good
 const authenticateUser = (email, password) => {
