@@ -1,39 +1,25 @@
-const users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
-  }
-};
+const bcrypt = require('bcrypt');
 
-
-////////// Finds user given email and database
+// Finds user given email and database
 
 const getUserByEmail = function(email, database) {
-
-  let user = {};
+  
 
   for (let userId in database) {
 
     const userObj = database[userId];
-
+    
     if (userObj.email === email) {
-     
-      user = userObj;
-      return user;
+      
+      return userObj;
     }
     
   }
-  return undefined
+  return false
 
 };
 
-///////////// Function to return urls based on id
+// Function to return urls based on id
 
 const urlsForUser = (userID, database) => {
  
@@ -52,28 +38,29 @@ const urlsForUser = (userID, database) => {
 };
 
 
-//////// function to check if password is good
-const authenticateUser = (email, password) => {
+// function to check if password is good
 
-  const userFound = getUserByEmail(email, users);
+const authenticateUser = (user, password) => {
 
-  if (userFound && bcrypt.compareSync(password, userFound.hashedPassword)) {
-    
-    return userFound;
-  }
+  if (bcrypt.compareSync(password, user.hashedPassword)) {
 
+    return true;
+ }
   return false;
-};
+ };
 
 
-//// I needed to use this as a reference for random genereation
+// I needed to use this as a reference for random genereation
 //https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
 
 function generateRandomString() {
 
   let alphaNum = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
   let randomString = '';
+
   for (let i = 0; i < 6; i++) {
+    
     randomString += alphaNum.charAt(Math.floor(Math.random() * alphaNum.length));
   }
   return randomString;
